@@ -24,12 +24,12 @@
         tools:layout="@layout/fragment_responses" />
     <fragment
         android:id="@+id/navigation_messages"
-        android:name="com.example.mytesttaskapplicationforeffectivemobile.ui.responses.ResponsesFragment"
+        android:name="com.example.mytesttaskapplicationforeffectivemobile.ui.messages.MessagesFragment"
         android:label="@string/title_messages"
         tools:layout="@layout/fragment_messages" />
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.example.mytesttaskapplicationforeffectivemobile.ui.responses.ResponsesFragment"
+        android:name="com.example.mytesttaskapplicationforeffectivemobile.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
 </navigation>

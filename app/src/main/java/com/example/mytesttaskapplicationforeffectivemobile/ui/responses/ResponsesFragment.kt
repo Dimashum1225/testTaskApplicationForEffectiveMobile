@@ -23,7 +23,7 @@ class ResponsesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val notificationsViewModel =
-            ViewModelProvider(this).get(RefactorViewModel::class.java)
+            ViewModelProvider(this).get(ResponsesrViewModel::class.java)
 
         _binding = FragmentResponsesBinding.inflate(inflater, container, false)
         val root: View = binding.root
