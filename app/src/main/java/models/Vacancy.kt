@@ -1,5 +1,9 @@
 package models
 
+
+data class VacancyResponse(
+    val vacancies: List<Vacancy>
+)
 data class Vacancy(
     val id: String,
     val lookingNumber: Int,

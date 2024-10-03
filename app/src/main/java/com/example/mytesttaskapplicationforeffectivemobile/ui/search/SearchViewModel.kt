@@ -9,6 +9,8 @@ import com.example.mytesttaskapplicationforeffectivemobile.RetrofitInstance
 import kotlinx.coroutines.launch
 import models.Offer
 import models.OfferResponse
+import models.Vacancy
+import models.VacancyResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,32 +18,41 @@ import retrofit2.Response
 class SearchViewModel : ViewModel() {
 
     private val _offers = MutableLiveData<List<Offer>>()
-    val offers: LiveData<List<Offer>>
-        get() = _offers
+    val offers: LiveData<List<Offer>> get() = _offers
+
+    private val _vacancies = MutableLiveData<List<Vacancy>>()
+    val vacancies: LiveData<List<Vacancy>> get() = _vacancies
 
     fun fetchOffers() {
-        viewModelScope.launch {
-            try {
-                // Выполнение запроса через ApiService
-                val call = RetrofitInstance.apiService.getOffers("1z4TbeDkbfXkvgpoJprXbN85uCcD7f00r", "download")
-                call.enqueue(object : Callback<OfferResponse> {
-                    override fun onResponse(call: Call<OfferResponse>, response: Response<OfferResponse>) {
-                        if (response.isSuccessful) {
-                            // Успешный ответ, обновляем LiveData
-                            _offers.value = response.body()?.offers
-                            Log.d("API Response", "Response: ${response.body()?.offers}")
-                        } else {
-                            Log.e("API Error", "Error: ${response.code()}")
-                        }
-                    }
+        fetchData(
+            call = RetrofitInstance.apiService.getOffers("1z4TbeDkbfXkvgpoJprXbN85uCcD7f00r", "download"),
+            onSuccess = { response -> _offers.value = response.offers }
+        )
+    }
 
-                    override fun onFailure(call: Call<OfferResponse>, t: Throwable) {
-                        Log.e("API Failure", "Error: $t")
+    fun fetchVacancies() {
+        fetchData(
+            call = RetrofitInstance.apiService.getVacancies("1z4TbeDkbfXkvgpoJprXbN85uCcD7f00r", "download"),
+            onSuccess = { response -> _vacancies.value = response.vacancies }
+        )
+    }
+
+    private fun <T> fetchData(call: Call<T>, onSuccess: (T) -> Unit) {
+        viewModelScope.launch {
+            call.enqueue(object : Callback<T> {
+                override fun onResponse(call: Call<T>, response: Response<T>) {
+                    if (response.isSuccessful) {
+                        onSuccess(response.body()!!)
+                        Log.d("API Response", "Response: ${response.body()}")
+                    } else {
+                        Log.e("API Error", "Error: ${response.code()}")
                     }
-                })
-            } catch (e: Exception) {
-                Log.e("Server question", "Ошибка выполнения запроса - $e")
-            }
+                }
+
+                override fun onFailure(call: Call<T>, t: Throwable) {
+                    Log.e("API Failure", "Error: $t")
+                }
+            })
         }
     }
 }
