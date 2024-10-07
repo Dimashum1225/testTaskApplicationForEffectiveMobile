@@ -1,8 +1,10 @@
 package com.example.mytesttaskapplicationforeffectivemobile.ui.search
 
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -14,11 +16,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mytesttaskapplicationforeffectivemobile.OffersAdapter
+import com.example.mytesttaskapplicationforeffectivemobile.Vacancy_Adapter
 import com.example.mytesttaskapplicationforeffectivemobile.databinding.FragmentSearchBinding
 import models.Offer
 import models.OfferResponse
+import models.Vacancy
+
 class SearchFragment : Fragment() {
 
+    private lateinit var vacancyAdapter: Vacancy_Adapter
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SearchViewModel by viewModels()
@@ -32,12 +41,11 @@ class SearchFragment : Fragment() {
         val root: View = binding.root
 
         checkView() // Проверка соединения при создании фрагмента
-        var offersList: List<Offer>? = null // Объявляем переменную для хранения списка предложений
 
         // Наблюдение за предложениями
         viewModel.offers.observe(viewLifecycleOwner) { offers ->
             Log.i("Обновление", "Обновление данных")
-            offersList = offers
+            upgradeOffersWindow(offers)
         }
 
         viewModel.fetchOffers()
@@ -45,8 +53,7 @@ class SearchFragment : Fragment() {
         // Наблюдение за вакансиями
         viewModel.vacancies.observe(viewLifecycleOwner) { vacancies ->
             Log.i("Обновление", "Обновление данных")
-            // Обновите UI, например, с помощью адаптера RecyclerView
-            // adapter.submitList(vacancies)
+            upgradeVacanciesWindow(vacancies)
         }
         viewModel.fetchVacancies()
 
@@ -54,6 +61,9 @@ class SearchFragment : Fragment() {
             checkView()
         }
 
+        binding.showallvacancies.setOnClickListener{
+            vacancyAdapter.showAllItems()
+        }
         return root
     }
 
@@ -85,4 +95,22 @@ class SearchFragment : Fragment() {
             binding.ChechInternet.visibility = View.VISIBLE
         }
     }
+    private fun upgradeOffersWindow(offers: List<Offer>) {
+        val recyclerView = binding.offersRecycler
+        val layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter = OffersAdapter(offers){link->
+            openUrl(link)
+        }
+    }
+    private fun openUrl(url:String){
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(browserIntent)
+    }
+    private fun upgradeVacanciesWindow(vacancies:List<Vacancy>){
+        val recyclerView = binding.vacancies
+        recyclerView.adapter = Vacancy_Adapter(vacancies)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+    }
+
 }
